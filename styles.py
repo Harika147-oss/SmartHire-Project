@@ -1,9 +1,6 @@
 def get_css():
     return """
 <style>
-body {
-        background-color: #f5f7fb;
-    }
 /* ===== GLOBAL ===== */
 * { box-sizing: border-box; }
 #MainMenu { visibility: hidden; }
