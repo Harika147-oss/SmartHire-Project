@@ -1,18 +1,12 @@
 import streamlit as st
 import os, sys, time, json
 sys.path.insert(0, os.path.dirname(__file__))
-
 from utils.styles import get_css
 from utils.auth import check_auth, login_user, register_user, logout, get_current_user, update_user
-from utils.resume_parser import (parse_resume, extract_skills, extract_education,
-                                  extract_experience, compute_resume_score, extract_email, extract_phone)
+from utils.resume_parser import (parse_resume, extract_skills, extract_education,extract_experience, compute_resume_score, extract_email, extract_phone)
 from models.classifier import predict_category
 from models.recommender import get_recommendations
 from models.skill_gap import analyze_skill_gap
-
-# ─────────────────────────────────────────────
-#  PAGE CONFIG
-# ─────────────────────────────────────────────
 st.set_page_config(
     page_title="SmartHire – AI Career Platform",
     page_icon="🎓",
@@ -20,10 +14,6 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 st.markdown(get_css(), unsafe_allow_html=True)
-
-# ─────────────────────────────────────────────
-#  SESSION DEFAULTS
-# ─────────────────────────────────────────────
 for key, default in {
     'current_page': 'dashboard',
     'resume_text': '',
@@ -34,17 +24,11 @@ for key, default in {
 }.items():
     if key not in st.session_state:
         st.session_state[key] = default
-
-# ─────────────────────────────────────────────
-#  HELPERS
-# ─────────────────────────────────────────────
 def nav_to(page: str):
     st.session_state.current_page = page
     st.rerun()
-
 def card(content: str):
     st.markdown(f'<div class="card">{content}</div>', unsafe_allow_html=True)
-
 def metric_card(icon, value, label, color="purple"):
     st.markdown(f"""
     <div class="metric-card metric-{color}">
@@ -52,21 +36,15 @@ def metric_card(icon, value, label, color="purple"):
         <div class="metric-value">{value}</div>
         <div class="metric-label">{label}</div>
     </div>""", unsafe_allow_html=True)
-
 def page_header(title: str, subtitle: str = ""):
     st.markdown(f"""
     <div class="page-header">
         <h1>{title}</h1>
         {"<p>" + subtitle + "</p>" if subtitle else ""}
     </div>""", unsafe_allow_html=True)
-
 def skill_tags(skills, missing=False):
     cls = "skill-tag-missing" if missing else "skill-tag"
     return "".join(f'<span class="{cls}">{s.title()}</span>' for s in skills)
-
-# ─────────────────────────────────────────────
-#  EXAM QUESTIONS
-# ─────────────────────────────────────────────
 EXAM_QUESTIONS = {
     "Easy": [
         {"q": "What is the output of: print(bool(\"False\")) in Python?",
@@ -174,17 +152,12 @@ EXAM_QUESTIONS = {
          "exp": "Serializable is the highest isolation level — it prevents dirty reads, non-repeatable reads, AND phantom reads by serializing transactions."},
     ],
 }
-
-# ─────────────────────────────────────────────
-#  LOGIN / SIGNUP PAGE
-# ─────────────────────────────────────────────
 def show_login_page():
     st.markdown("""
     <style>
     [data-testid="stSidebar"] { display: none !important; }
     section.main > div { padding-top: 0 !important; }
     </style>""", unsafe_allow_html=True)
-
     col_l, col_c, col_r = st.columns([1, 2, 1])
     with col_c:
         st.markdown("""
@@ -193,12 +166,8 @@ def show_login_page():
             <h1>SmartHire</h1>
             <p>AI-Powered Career Guidance Platform</p>
         </div>""", unsafe_allow_html=True)
-
         st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
-
         tab_login, tab_signup = st.tabs(["🔐  Login", "✨  Sign Up"])
-
-        # ── LOGIN ──
         with tab_login:
             st.markdown("<br>", unsafe_allow_html=True)
             with st.form("login_form", clear_on_submit=False):
@@ -224,8 +193,6 @@ def show_login_page():
                             st.error("Incorrect email or password.")
             st.markdown("""<div style="text-align:center;color:#64748b;font-size:0.8rem;margin-top:8px;">
                 Demo: register first, then login</div>""", unsafe_allow_html=True)
-
-        # ── SIGN UP ──
         with tab_signup:
             st.markdown("<br>", unsafe_allow_html=True)
             with st.form("signup_form", clear_on_submit=False):
@@ -253,8 +220,6 @@ def show_login_page():
                             st.success("Account created! Switch to Login tab.")
                         else:
                             st.error(msg)
-
-        # Features list
         st.markdown("""
         <div style="margin-top:24px;">
             <div class="feature-item"><span>✅</span><span>AI-powered resume analysis</span></div>
@@ -263,10 +228,6 @@ def show_login_page():
             <div class="feature-item"><span>✅</span><span>Placement preparation exams</span></div>
             <div class="feature-item"><span>✅</span><span>Personalized learning resources</span></div>
         </div>""", unsafe_allow_html=True)
-
-# ─────────────────────────────────────────────
-#  SIDEBAR
-# ─────────────────────────────────────────────
 def show_sidebar():
     user = get_current_user() or {}
     with st.sidebar:
@@ -276,8 +237,6 @@ def show_sidebar():
             <h2 style="margin:0;font-size:1.4rem;font-weight:800;color:#fff;">SmartHire</h2>
             <p style="margin:0;font-size:0.75rem;color:#94a3b8;">Career Guidance Portal</p>
         </div>""", unsafe_allow_html=True)
-
-        # User card
         st.markdown(f"""
         <div class="sidebar-user">
             <div class="sidebar-user-avatar">👨‍🎓</div>
@@ -286,7 +245,6 @@ def show_sidebar():
                 <div class="sidebar-user-email">{user.get('email','')}</div>
             </div>
         </div>""", unsafe_allow_html=True)
-
         nav_items = [
             ("🏠", "Dashboard",         "dashboard"),
             ("📄", "Resume Analyzer",   "resume_upload"),
@@ -309,23 +267,14 @@ def show_sidebar():
                 st.session_state.current_page = page_id
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
-
         st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
         if st.button("🚪  Logout", key="nav_logout", use_container_width=True):
             logout()
             st.rerun()
-
-# ─────────────────────────────────────────────
-#  PAGES
-# ─────────────────────────────────────────────
-
-# ── DASHBOARD ──
 def page_dashboard():
     user = get_current_user() or {}
     name = user.get('name', 'Student')
     domain = user.get('domain', 'Machine Learning')
-
-    # ── Welcome Banner ──
     st.markdown(f"""
     <div class="welcome-banner" style="display:flex;justify-content:space-between;align-items:center;">
         <div>
@@ -335,8 +284,6 @@ def page_dashboard():
         </div>
         <div style="font-size:5rem;opacity:0.85;line-height:1;">🎓</div>
     </div>""", unsafe_allow_html=True)
-
-    # ── Upload Resume (on dashboard) ──
     st.markdown('<div class="dash-card" style="margin-bottom:16px;"><div style="font-size:0.82rem;color:#94a3b8;font-weight:600;letter-spacing:0.05em;margin-bottom:8px;">UPLOAD RESUME</div>', unsafe_allow_html=True)
     uploaded = st.file_uploader("Upload Resume", type=["pdf","docx","txt"], label_visibility="collapsed", key="dash_upload")
     st.markdown('<div style="text-align:right;font-size:0.75rem;color:#64748b;">PDF, DOCX, TXT (Max 200MB)</div></div>', unsafe_allow_html=True)
@@ -356,14 +303,11 @@ def page_dashboard():
             if email:
                 update_user(email, {'skills': skills, 'resume_score': score, 'resume_text': text[:500]})
         st.success(f"✅ Resume parsed! Score: **{score}/100**")
-
-    # ── 5 Metric Cards ──
     rs  = user.get('resume_score', 85)
     jm  = user.get('job_match',    90)
     tt  = user.get('exams_taken',   8)
     asg = user.get('assignments',  12)
     hs  = user.get('highest_score',95)
-
     c1, c2, c3, c4, c5 = st.columns(5)
     cards = [
         (c1, "📄", "Resume Score", f"{rs}%",  "#2563eb", rs),
@@ -385,12 +329,8 @@ def page_dashboard():
                     <div style="width:{pct}%;height:100%;background:{color};border-radius:999px;"></div>
                 </div>
             </div>""", unsafe_allow_html=True)
-
     st.markdown("<br>", unsafe_allow_html=True)
-
-    # ── 4-Column Bottom Grid ──
     g1, g2, g3, g4 = st.columns(4)
-
     # Col 1 — Skill Gap Report
     with g1:
         gap = analyze_skill_gap(user.get('skills', []), domain)
@@ -404,7 +344,6 @@ def page_dashboard():
                 ℹ️ Improve these skills to increase your job match score.
             </div>
         </div>""", unsafe_allow_html=True)
-
     # Col 2 — Recommended Domain + Jobs
     with g2:
         rec_jobs = ["Machine Learning Engineer","AI Engineer","Data Scientist","Python Developer","Data Analyst"]
@@ -416,7 +355,6 @@ def page_dashboard():
             <div class="dash-card-title" style="margin-top:4px;">💼 Recommended Jobs</div>
             {jobs_rows}
         </div>""", unsafe_allow_html=True)
-
     # Col 3 — Upcoming Exams
     with g3:
         exams = [("📋","TCS NQT"),("🏢","Infosys"),("💻","Wipro"),("🏦","Accenture"),("🔵","Cognizant")]
@@ -426,7 +364,6 @@ def page_dashboard():
             <div class="dash-card-title">📝 Upcoming Exams</div>
             {exams_rows}
         </div>""", unsafe_allow_html=True)
-
     # Col 4 — Career Insights
     with g4:
         insights = [
@@ -441,12 +378,8 @@ def page_dashboard():
             <div class="dash-card-title">💡 Career Insights</div>
             {rows}
         </div>""", unsafe_allow_html=True)
-
-
-# ── RESUME UPLOAD ──
 def page_resume_upload():
     page_header("📄 Resume Upload", "Upload your resume and let AI extract insights")
-
     col_upload, col_info = st.columns([3, 2])
     with col_upload:
         st.markdown("""
@@ -456,13 +389,11 @@ def page_resume_upload():
                 Supported formats: PDF, DOCX, TXT
             </p>
         </div>""", unsafe_allow_html=True)
-
         uploaded = st.file_uploader(
             "Drop your resume here or click to browse",
             type=["pdf", "docx", "doc", "txt"],
             label_visibility="collapsed"
         )
-
         if uploaded:
             with st.spinner("Parsing your resume…"):
                 text = parse_resume(uploaded)
@@ -470,12 +401,10 @@ def page_resume_upload():
                 edu     = extract_education(text)
                 exp     = extract_experience(text)
                 score   = compute_resume_score(skills, edu, exp, text)
-
                 st.session_state['resume_text']     = text
                 st.session_state['extracted_skills']= skills
                 st.session_state['resume_score']    = score
                 st.session_state['analysis_done']   = True
-
                 user_email = st.session_state.get('email', '')
                 if user_email:
                     update_user(user_email, {
@@ -483,33 +412,25 @@ def page_resume_upload():
                         'resume_score': score,
                         'resume_text': text[:500],
                     })
-
             st.success(f"✅ Resume parsed successfully! Score: **{score}/100**")
-
             tab_text, tab_skills, tab_edu = st.tabs(["📝 Raw Text", "🔧 Skills", "🎓 Education"])
-
             with tab_text:
-                st.text_area("Extracted text", text[:2000] + ("…" if len(text) > 2000 else ""),
-                             height=250, disabled=True)
-
+                st.text_area("Extracted text", text[:2000] + ("…" if len(text) > 2000 else ""), height=250, disabled=True)
             with tab_skills:
                 if skills:
                     st.markdown("**Detected Skills:**")
                     st.markdown(skill_tags(skills), unsafe_allow_html=True)
                 else:
                     st.info("No recognised skills detected. Try a more detailed resume.")
-
             with tab_edu:
                 if edu:
                     for e in edu:
                         st.markdown(f"🎓 {e}")
                 else:
                     st.info("No education entries detected.")
-
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("🔍 Go to Resume Analysis →", use_container_width=True):
                 nav_to("resume_analysis")
-
     with col_info:
         st.markdown("""
         <div class="card">
@@ -529,7 +450,6 @@ def page_resume_upload():
                 <span>{icon}</span>
                 <span style="font-size:0.85rem;color:#94a3b8;">{tip}</span>
             </div>""", unsafe_allow_html=True)
-
         score = st.session_state.get('resume_score', 0)
         if score:
             st.markdown("<br>", unsafe_allow_html=True)
@@ -541,28 +461,19 @@ def page_resume_upload():
                 <div class="metric-value" style="color:{color};">{score}</div>
                 <div class="metric-label">Resume Score — {label}</div>
             </div>""", unsafe_allow_html=True)
-
-
-# ── RESUME ANALYSIS ──
 def page_resume_analysis():
     page_header("🔍 Resume Analysis", "AI-powered analysis of your resume using ML")
-
     if not st.session_state.get('analysis_done'):
         st.info("📄 Please upload your resume first.")
         if st.button("Go to Resume Upload →"):
             nav_to("resume_upload")
         return
-
     text   = st.session_state.get('resume_text', '')
     skills = st.session_state.get('extracted_skills', [])
     score  = st.session_state.get('resume_score', 0)
-
-    # Classify
     category, confidence, probs = predict_category(text)
-
     col_a, col_b = st.columns([3, 2])
     with col_a:
-        # Score ring
         color = "#10b981" if score >= 70 else "#f59e0b" if score >= 40 else "#ef4444"
         st.markdown(f"""
         <div class="card" style="text-align:center;padding:30px;">
@@ -570,16 +481,12 @@ def page_resume_analysis():
             <div style="font-size:5rem;font-weight:900;color:{color};line-height:1;">{score}</div>
             <div style="font-size:0.8rem;color:#64748b;">out of 100</div>
         </div>""", unsafe_allow_html=True)
-
-        # Predicted domain
         st.markdown(f"""
         <div class="card" style="margin-top:16px;">
             <div class="section-title">🎯 Predicted Domain</div>
             <div style="font-size:1.3rem;font-weight:700;color:#a78bfa;margin:8px 0;">{category}</div>
             <div style="font-size:0.85rem;color:#94a3b8;">Confidence: {confidence*100:.0f}%</div>
         </div>""", unsafe_allow_html=True)
-
-        # Top 5 domain match
         st.markdown('<div class="section-title" style="margin-top:18px;">📊 Domain Match Scores</div>', unsafe_allow_html=True)
         sorted_probs = sorted(probs.items(), key=lambda x: x[1], reverse=True)[:5]
         for dom, prob in sorted_probs:
@@ -595,13 +502,9 @@ def page_resume_analysis():
                     <div style="width:{pct}%;height:100%;background:{bar_color};border-radius:999px;"></div>
                 </div>
             </div>""", unsafe_allow_html=True)
-
     with col_b:
-        # Skills breakdown
         skills_html = "".join(f'<span class="skill-tag">{s}</span>' for s in skills[:20]) if skills else '<p style="color:#64748b;font-size:0.85rem;">No skills detected</p>'
         st.markdown(f'<div class="card"><div class="section-title">🔧 Detected Skills ({len(skills)})</div>{skills_html}</div>', unsafe_allow_html=True)
-
-        # Score breakdown
         st.markdown("""
         <div class="card" style="margin-top:16px;">
             <div class="section-title">📈 Score Breakdown</div>
@@ -625,21 +528,14 @@ def page_resume_analysis():
                     <div style="width:{pct}%;height:100%;background:{color};border-radius:999px;"></div>
                 </div>
             </div>""", unsafe_allow_html=True)
-
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("💼 View Job Recommendations →", use_container_width=True):
         nav_to("jobs")
-
-
-# ── JOB RECOMMENDATIONS ──
 def page_jobs():
     page_header("💼 Job Recommendations", "Personalized job matches based on your skills")
-
     user   = get_current_user() or {}
     skills = st.session_state.get('extracted_skills') or user.get('skills', [])
     domain = user.get('domain', '')
-
-    # Filters row
     col_f1, col_f2, col_f3 = st.columns([2, 2, 1])
     with col_f1:
         filter_type = st.selectbox("Job Type", ["All", "Full-time", "Internship"], key="jf_type")
@@ -650,17 +546,12 @@ def page_jobs():
         ], key="jf_domain")
     with col_f3:
         top_n = st.selectbox("Show", [5, 10, 15, 20], index=1, key="jf_n")
-
     jobs = get_recommendations(skills, domain, top_n=top_n)
-
-    # Apply filters
     if filter_type != "All":
         jobs = [j for j in jobs if j.get('type', '') == filter_type]
     if filter_domain != "All":
         jobs = [j for j in jobs if filter_domain.lower() in j.get('domain', '').lower()]
-
     st.markdown(f'<div style="color:#94a3b8;font-size:0.85rem;margin-bottom:14px;">Showing {len(jobs)} matching jobs</div>', unsafe_allow_html=True)
-
     col_list, col_detail = st.columns([3, 2])
     with col_list:
         for i, job in enumerate(jobs):
@@ -706,24 +597,15 @@ def page_jobs():
                 <span style="font-size:0.85rem;color:#e2e8f0;font-weight:500;">{c}</span>
                 <span class="badge badge-green" style="margin-left:auto;">Hiring</span>
             </div>""", unsafe_allow_html=True)
-
-
-# ── SKILL GAP ──
 def page_skill_gap():
     page_header("📊 Skill Gap Report", "Identify what skills you need to land your dream job")
-
     user   = get_current_user() or {}
     skills = st.session_state.get('extracted_skills') or user.get('skills', [])
     domain = user.get('domain', 'Data Science')
-
-    # Role selector
     from models.skill_gap import ROLE_SKILLS
     roles = list(ROLE_SKILLS.keys())
-    target = st.selectbox("🎯 Target Role", roles,
-                          index=roles.index(domain) if domain in roles else 0)
-
+    target = st.selectbox("🎯 Target Role", roles, index=roles.index(domain) if domain in roles else 0)
     gap = analyze_skill_gap(skills, target)
-
     col_score, col_main = st.columns([1, 3])
     with col_score:
         score = gap['readiness_score']
@@ -735,10 +617,8 @@ def page_skill_gap():
             <div style="font-size:3.5rem;font-weight:900;color:{color};line-height:1;">{score}%</div>
             <div style="font-size:0.8rem;color:{color};margin-top:8px;font-weight:600;">{label}</div>
         </div>""", unsafe_allow_html=True)
-
     with col_main:
         tab_missing, tab_present, tab_path = st.tabs(["❌ Missing Skills", "✅ Your Skills", "🗺️ Learning Path"])
-
         with tab_missing:
             if gap['missing_required']:
                 st.markdown("**Critical Skills to Learn:**")
@@ -748,8 +628,6 @@ def page_skill_gap():
             if gap['missing_good_to_have']:
                 st.markdown("<br>**Good to Have:**", unsafe_allow_html=True)
                 st.markdown(skill_tags(gap['missing_good_to_have'], missing=True), unsafe_allow_html=True)
-
-            # Progress bars for each required skill
             st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
             st.markdown("**Skill Coverage:**")
             all_req = gap['missing_required'] + gap['present_required']
@@ -767,7 +645,6 @@ def page_skill_gap():
                         <div style="width:{pct}%;height:100%;background:{color};border-radius:999px;"></div>
                     </div>
                 </div>""", unsafe_allow_html=True)
-
         with tab_present:
             if gap['present_required']:
                 st.markdown("**Skills You Already Have:**")
@@ -777,7 +654,6 @@ def page_skill_gap():
                 st.markdown(skill_tags(gap['present_good_to_have']), unsafe_allow_html=True)
             if not gap['present_required'] and not gap['present_good_to_have']:
                 st.info("Upload your resume first to see your current skills.")
-
         with tab_path:
             st.markdown("**📍 Recommended Learning Path:**")
             for i, step in enumerate(gap['learning_path'], 1):
@@ -787,26 +663,18 @@ def page_skill_gap():
                     <span style="background:{color};color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0;">{i}</span>
                     <span style="font-size:0.88rem;color:#e2e8f0;">{step}</span>
                 </div>""", unsafe_allow_html=True)
-
-
-# ── EXAMS ──
 def page_exams():
     page_header("📝 Placement Exams", "Test your knowledge with real placement-type questions")
-
     diff_tab = st.session_state.get('exam_diff', None)
     tabs = st.tabs(["🟢  Easy", "🟡  Medium", "🔴  Hard"])
-
     for tab_idx, (tab, difficulty) in enumerate(zip(tabs, ["Easy", "Medium", "Hard"])):
         with tab:
             if diff_tab == difficulty:
                 st.session_state['exam_diff'] = None  # reset
-
             q_key   = f"exam_answers_{difficulty}"
             sub_key = f"exam_submitted_{difficulty}"
             score_key = f"exam_score_{difficulty}"
-
             questions = EXAM_QUESTIONS[difficulty]
-
             # Header banner
             colors = {"Easy": ("diff-easy","#10b981","🟢"), "Medium": ("diff-medium","#f59e0b","🟡"), "Hard": ("diff-hard","#ef4444","🔴")}
             cls, col, icon = colors[difficulty]
@@ -822,7 +690,6 @@ def page_exams():
                     <div style="font-size:0.75rem;color:#94a3b8;">Questions</div>
                 </div>
             </div>""", unsafe_allow_html=True)
-
             # Already submitted → show results
             if st.session_state.get(sub_key):
                 answers  = st.session_state.get(q_key, {})
@@ -840,13 +707,11 @@ def page_exams():
                     <div class="result-label">{correct} / {total} correct answers</div>
                     <div class="result-grade" style="color:{g_color};">Grade: {grade}</div>
                 </div>""", unsafe_allow_html=True)
-
                 # Score breakdown
                 sc1, sc2, sc3 = st.columns(3)
                 with sc1: metric_card("✅", correct,        "Correct",  "green")
                 with sc2: metric_card("❌", total-correct,  "Wrong",    "pink")
                 with sc3: metric_card("🏅", f"{pct}%",      "Score",    "purple")
-
                 # Update user stats
                 user_email = st.session_state.get('email','')
                 user = get_current_user() or {}
@@ -855,15 +720,12 @@ def page_exams():
                         'exams_taken': user.get('exams_taken', 0) + 1,
                         'highest_score': max(user.get('highest_score', 0), pct),
                     })
-
                 st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
                 st.markdown("### 📋 Answer Review")
-
                 for i, q in enumerate(questions):
                     user_ans = answers.get(i)
                     correct_ans = q['ans']
                     is_correct = user_ans == correct_ans
-
                     if is_correct:
                         status_html = '<span style="color:#10b981;font-weight:700;">✅ Correct!</span>'
                     elif user_ans is None:
@@ -879,7 +741,6 @@ def page_exams():
                         if not is_correct:
                             st.markdown(f'<div class="ans-correct-reveal">✅ Correct Answer: {correct_ans}</div>', unsafe_allow_html=True)
                         st.markdown(f'<div style="margin-top:8px;font-size:0.83rem;color:#94a3b8;background:#0f172a;padding:8px 12px;border-radius:8px;">💡 {q["exp"]}</div>', unsafe_allow_html=True)
-
                 col_retry, _ = st.columns([1, 2])
                 with col_retry:
                     if st.button(f"🔄 Retake {difficulty} Exam", key=f"retry_{difficulty}", use_container_width=True):
@@ -887,14 +748,11 @@ def page_exams():
                         if q_key in st.session_state: del st.session_state[q_key]
                         if score_key in st.session_state: del st.session_state[score_key]
                         st.rerun()
-
             else:
                 # Show questions
                 if q_key not in st.session_state:
                     st.session_state[q_key] = {}
-
                 answers = st.session_state[q_key]
-
                 with st.form(key=f"exam_form_{difficulty}"):
                     for i, q in enumerate(questions):
                         st.markdown(f"""
@@ -902,7 +760,6 @@ def page_exams():
                             <span class="question-number">Q {i+1}</span>
                             <div class="question-text">{q['q']}</div>
                         </div>""", unsafe_allow_html=True)
-
                         choice = st.radio(
                             f"Select answer for Q{i+1}",
                             q['opts'],
@@ -912,23 +769,16 @@ def page_exams():
                         )
                         answers[i] = choice
                         st.markdown("<br>", unsafe_allow_html=True)
-
                     submitted = st.form_submit_button(f"Submit {difficulty} Exam ✔️", use_container_width=True)
-
                     if submitted:
                         correct = sum(1 for i, q in enumerate(questions) if answers.get(i) == q['ans'])
                         st.session_state[q_key]    = answers
                         st.session_state[sub_key]  = True
                         st.session_state[score_key] = {'correct': correct, 'total': len(questions)}
                         st.rerun()
-
-
-# ── LEARNING RESOURCES ──
 def page_learning():
     page_header("📚 Learning Resources", "Curated courses, tutorials and tools for your career")
-
     search = st.text_input("🔍 Search resources", placeholder="e.g. Python, Machine Learning, SQL…")
-
     categories = {
         "🐍 Python & Programming": [
             ("📺", "Python for Everybody",     "Coursera (University of Michigan) — Beginner friendly",  "https://www.coursera.org/specializations/python"),
@@ -973,9 +823,7 @@ def page_learning():
             ("📖", "Kaggle Datasets",            "Free public datasets for practice projects",             "https://kaggle.com/datasets"),
         ],
     }
-
     icon_map = {"📺": "Video Course", "📖": "Documentation", "🎮": "Practice"}
-
     for cat, resources in categories.items():
         filtered = resources
         if search:
@@ -997,15 +845,10 @@ def page_learning():
                     <a class="resource-link" href="{link}" target="_blank">Visit →</a>
                 </div>
             </div>""", unsafe_allow_html=True)
-
-
-# ── PROFILE ──
 def page_profile():
     page_header("👤 My Profile", "View and update your career profile")
-
     user = get_current_user() or {}
     skills = st.session_state.get('extracted_skills') or user.get('skills', [])
-
     col_left, col_right = st.columns([2, 3])
     with col_left:
         st.markdown(f"""
@@ -1018,7 +861,6 @@ def page_profile():
                 <span class="badge badge-blue" style="margin-left:6px;">{user.get('college','')}</span>
             </div>
         </div>""", unsafe_allow_html=True)
-
         st.markdown("""<div class="card">
             <div class="section-title">📊 Progress Stats</div>
         </div>""", unsafe_allow_html=True)
@@ -1033,7 +875,6 @@ def page_profile():
                 <span style="font-size:0.85rem;color:#94a3b8;">{icon} {label}</span>
                 <span style="font-size:0.95rem;font-weight:700;color:{color};">{val}</span>
             </div>""", unsafe_allow_html=True)
-
     with col_right:
         st.markdown("### ✏️ Edit Profile")
         with st.form("profile_form"):
@@ -1067,17 +908,11 @@ def page_profile():
                     st.session_state['extracted_skills'] = new_skills
                 st.success("✅ Profile updated!")
                 st.rerun()
-
-        # Skills display
         if skills:
             st.markdown('<div class="section-title" style="margin-top:20px;">🔧 Current Skills</div>', unsafe_allow_html=True)
             st.markdown(skill_tags(skills), unsafe_allow_html=True)
-
-
-# ── ABOUT ──
 def page_about():
     page_header("ℹ️ About SmartHire", "AI-Powered Career Guidance Platform")
-
     col_a, col_b = st.columns([3, 2])
     with col_a:
         st.markdown("""
@@ -1089,7 +924,6 @@ def page_about():
                 identify skill gaps, and prepare students for placement interviews.
             </p>
         </div>""", unsafe_allow_html=True)
-
         st.markdown("""
         <div class="card" style="margin-top:16px;">
             <div class="section-title">⚙️ How It Works</div>
@@ -1113,7 +947,6 @@ def page_about():
                     <div style="font-size:0.82rem;color:#94a3b8;">{desc}</div>
                 </div>
             </div>""", unsafe_allow_html=True)
-
     with col_b:
         st.markdown("""
         <div class="card">
@@ -1136,7 +969,6 @@ def page_about():
                     <div style="font-size:0.75rem;color:#64748b;">{desc}</div>
                 </div>
             </div>""", unsafe_allow_html=True)
-
         st.markdown("""
         <div class="card" style="margin-top:16px;text-align:center;padding:24px;">
             <div style="font-size:2rem;">🎓</div>
@@ -1144,19 +976,11 @@ def page_about():
             <div style="font-size:0.8rem;color:#64748b;">Machine Learning Industrial Project</div>
             <div style="font-size:0.78rem;color:#64748b;margin-top:6px;">© 2025 SmartHire. All rights reserved.</div>
         </div>""", unsafe_allow_html=True)
-
-
-# ─────────────────────────────────────────────
-#  MAIN ROUTER
-# ─────────────────────────────────────────────
 def main():
     if not check_auth():
         show_login_page()
         return
-
     show_sidebar()
-
-    # Route to page
     page = st.session_state.get('current_page', 'dashboard')
     PAGE_MAP = {
         'dashboard':       page_dashboard,
@@ -1176,11 +1000,6 @@ def main():
     }
     render_fn = PAGE_MAP.get(page, page_dashboard)
     render_fn()
-
-
-# ─────────────────────────────────────────────
-#  EXTRA PAGES (Career Insights, Achievements, Results, Notifications, Settings)
-# ─────────────────────────────────────────────
 def page_career_insights():
     page_header("💡 Career Insights", "Market trends and salary data for your target domain")
     user = get_current_user() or {}
@@ -1206,7 +1025,6 @@ def page_career_insights():
             <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #1e293b;font-size:0.85rem;color:#cbd5e1;">🟢 Infosys</div>
             <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:0.85rem;color:#cbd5e1;">🟣 TCS</div>
         </div>""", unsafe_allow_html=True)
-
 def page_achievements():
     page_header("🏆 Achievements", "Your earned badges and milestones")
     user = get_current_user() or {}
@@ -1229,7 +1047,6 @@ def page_achievements():
                 <div style="font-size:0.78rem;color:#64748b;">{desc}</div>
                 <div style="margin-top:8px;font-size:0.75rem;color:{'#10b981' if earned else '#475569'};font-weight:600;">{'✅ Earned' if earned else '🔒 Locked'}</div>
             </div>""", unsafe_allow_html=True)
-
 def page_results():
     page_header("📋 Results", "Your exam history and scores")
     user = get_current_user() or {}
@@ -1246,7 +1063,6 @@ def page_results():
     st.info("Take exams from the **Exams** page to see detailed results here.")
     if st.button("📝 Go to Exams", use_container_width=True):
         nav_to("exams")
-
 def page_notifications():
     page_header("🔔 Notifications", "Updates and alerts for your career journey")
     notifications = [
@@ -1267,7 +1083,6 @@ def page_notifications():
                 </div>
             </div>
         </div>""", unsafe_allow_html=True)
-
 def page_settings():
     page_header("⚙️ Settings", "Manage your account and preferences")
     user = get_current_user() or {}
@@ -1281,7 +1096,5 @@ def page_settings():
         logout()
         st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
-
-
 if __name__ == '__main__':
     main()
