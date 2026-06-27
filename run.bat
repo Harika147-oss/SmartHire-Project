@@ -1,14 +1,13 @@
 @echo off
 title SmartHire - AI Career Platform
 color 0A
-
 echo.
 echo  ================================================
 echo   SmartHire - AI Career Guidance Platform
 echo  ================================================
 echo.
 
-REM ── Check Python ──────────────────────────────────
+REM  Check Python 
 python --version >nul 2>&1
 IF %ERRORLEVEL% NEQ 0 (
     echo  [ERROR] Python is NOT installed or not in PATH.
@@ -22,7 +21,6 @@ IF %ERRORLEVEL% NEQ 0 (
     start https://www.python.org/downloads/
     exit /b 1
 )
-
 echo  [OK] Python found:
 python --version
 echo.
@@ -43,7 +41,6 @@ IF %ERRORLEVEL% NEQ 0 (
     pause
     exit /b 1
 )
-
 echo.
 echo  [OK] All packages installed.
 echo.
@@ -52,8 +49,6 @@ echo   Starting SmartHire on http://localhost:8501
 echo   Press Ctrl+C to stop the app
 echo  ================================================
 echo.
-
 REM ── Launch Streamlit ──────────────────────────────
 python -m streamlit run streamlit_app.py --server.port 8501 --server.address localhost --browser.serverAddress localhost
-
 pause
