@@ -1,7 +1,5 @@
 import re
 import io
-
-# ---- Skills Database ----
 ALL_SKILLS = {
     'programming': ['python', 'java', 'javascript', 'c++', 'c#', 'typescript', 'go', 'rust',
                     'kotlin', 'swift', 'r', 'scala', 'php', 'ruby', 'dart', 'c'],
@@ -16,9 +14,7 @@ ALL_SKILLS = {
     'soft': ['leadership', 'communication', 'teamwork', 'problem solving', 'agile', 'scrum',
              'project management', 'analytical', 'critical thinking'],
 }
-
 FLAT_SKILLS = [s for skills in ALL_SKILLS.values() for s in skills]
-
 def parse_pdf(file_bytes):
     try:
         import PyPDF2
@@ -29,7 +25,6 @@ def parse_pdf(file_bytes):
         return text.strip()
     except Exception as e:
         return f"[Could not parse PDF: {e}]"
-
 def parse_docx(file_bytes):
     try:
         from docx import Document
@@ -38,7 +33,6 @@ def parse_docx(file_bytes):
         return text.strip()
     except Exception as e:
         return f"[Could not parse DOCX: {e}]"
-
 def parse_resume(uploaded_file):
     """Return extracted text from uploaded resume."""
     name = uploaded_file.name.lower()
@@ -48,12 +42,10 @@ def parse_resume(uploaded_file):
     elif name.endswith('.docx') or name.endswith('.doc'):
         return parse_docx(file_bytes)
     else:
-        # Plain text
         try:
             return file_bytes.decode('utf-8')
         except Exception:
             return file_bytes.decode('latin-1', errors='replace')
-
 def extract_skills(text: str):
     text_lower = text.lower()
     found = []
@@ -61,15 +53,12 @@ def extract_skills(text: str):
         if re.search(r'\b' + re.escape(skill) + r'\b', text_lower):
             found.append(skill.title())
     return list(dict.fromkeys(found))  # deduplicate preserving order
-
 def extract_email(text: str):
     match = re.search(r'[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}', text)
     return match.group(0) if match else ''
-
 def extract_phone(text: str):
     match = re.search(r'(\+?\d[\d\s\-]{8,}\d)', text)
     return match.group(0).strip() if match else ''
-
 def extract_education(text: str):
     edu_keywords = ['b.tech', 'b.e', 'bsc', 'bca', 'mca', 'm.tech', 'msc', 'phd',
                     'bachelor', 'master', 'engineering', 'computer science', 'information technology',
@@ -82,7 +71,6 @@ def extract_education(text: str):
             if len(clean) > 5:
                 edu.append(clean)
     return edu[:4]
-
 def extract_experience(text: str):
     exp_keywords = ['intern', 'developer', 'engineer', 'analyst', 'manager', 'consultant',
                     'researcher', 'trainer', 'freelancer', 'associate']
@@ -94,7 +82,6 @@ def extract_experience(text: str):
             if len(clean) > 10:
                 exp.append(clean)
     return exp[:5]
-
 def compute_resume_score(skills, education, experience, text):
     score = 0
     score += min(len(skills) * 4, 40)     # up to 40 pts for skills
