@@ -1,5 +1,4 @@
 """Skill gap analysis between user skills and target role requirements."""
-
 ROLE_SKILLS = {
     'Data Science': {
         'required': ['python', 'pandas', 'numpy', 'sql', 'machine learning', 'statistics',
@@ -52,28 +51,21 @@ ROLE_SKILLS = {
                           'Build a portfolio', 'Learn HTML/CSS basics'],
     },
 }
-
 def analyze_skill_gap(user_skills: list, target_role: str):
     user_skills_lower = [s.lower() for s in user_skills]
-
     if target_role not in ROLE_SKILLS:
         # Best match
         target_role = 'Software Engineering'
-
     role_data = ROLE_SKILLS[target_role]
     required = role_data['required']
     good_to_have = role_data['good_to_have']
     learning_path = role_data['learning_path']
-
     present_required = [s for s in required if s.lower() in user_skills_lower]
     missing_required = [s for s in required if s.lower() not in user_skills_lower]
-
     present_gth = [s for s in good_to_have if s.lower() in user_skills_lower]
     missing_gth = [s for s in good_to_have if s.lower() not in user_skills_lower]
-
     total = len(required)
     readiness = round((len(present_required) / total * 100) if total > 0 else 0)
-
     return {
         'target_role': target_role,
         'readiness_score': readiness,
