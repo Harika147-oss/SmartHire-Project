@@ -1,6 +1,5 @@
 """Job recommender using skill overlap scoring."""
 import random
-
 JOB_DATABASE = [
     # Data Science
     {"title": "Data Scientist", "company": "TCS", "location": "Bangalore", "salary": "8-14 LPA",
@@ -84,11 +83,9 @@ JOB_DATABASE = [
      "skills": ["sql", "excel", "python", "data analysis", "tableau", "product"],
      "domain": "Data Science", "experience": "0-2 years", "type": "Full-time"},
 ]
-
 def get_recommendations(user_skills: list, category: str = '', top_n: int = 10):
     """Return top_n job recommendations sorted by skill match score."""
     user_skills_lower = [s.lower() for s in user_skills]
-
     scored = []
     for job in JOB_DATABASE:
         job_skills = [s.lower() for s in job['skills']]
@@ -98,12 +95,8 @@ def get_recommendations(user_skills: list, category: str = '', top_n: int = 10):
             score = (match / total * 100) if total > 0 else random.randint(20, 50)
         else:
             score = random.randint(30, 70)
-
-        # Boost if domain matches
         if category and category.lower() in job['domain'].lower():
             score = min(score * 1.3, 99)
-
         scored.append({**job, 'match_score': round(score, 1)})
-
     scored.sort(key=lambda x: x['match_score'], reverse=True)
     return scored[:top_n]
