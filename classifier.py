@@ -1,5 +1,4 @@
 """Resume category classifier using keyword scoring."""
-
 DOMAIN_KEYWORDS = {
     'Data Science': [
         'data science', 'machine learning', 'deep learning', 'python', 'pandas', 'numpy',
@@ -45,24 +44,19 @@ DOMAIN_KEYWORDS = {
         'jira', 'confluence', 'excel', 'powerpoint', 'documentation', 'use case', 'workflow'
     ],
 }
-
 def predict_category(text: str):
     text_lower = text.lower()
     scores = {}
     for domain, keywords in DOMAIN_KEYWORDS.items():
         score = sum(1 for kw in keywords if kw in text_lower)
         scores[domain] = score
-
     if max(scores.values()) == 0:
         return 'Software Engineering', 0.5, scores
-
     total = sum(scores.values())
     best = max(scores, key=scores.get)
     confidence = scores[best] / total if total > 0 else 0.5
-
     # Normalize to probabilities
     probs = {k: v / total if total > 0 else 0 for k, v in scores.items()}
     return best, round(confidence, 2), probs
-
 def get_all_domains():
     return list(DOMAIN_KEYWORDS.keys())
