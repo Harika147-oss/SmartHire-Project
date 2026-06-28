@@ -976,11 +976,46 @@ def page_about():
             <div style="font-size:0.8rem;color:#64748b;">Machine Learning Industrial Project</div>
             <div style="font-size:0.78rem;color:#64748b;margin-top:6px;">© 2025 SmartHire. All rights reserved.</div>
         </div>""", unsafe_allow_html=True)
+        def show_topbar():
+    user = get_current_user() or {}
+    name = user.get('name', 'User')
+    initial = name[0].upper() if name else 'U'
+    page = st.session_state.get('current_page', 'dashboard')
+    page_titles = {
+        'dashboard':'Dashboard','resume_upload':'Resume Analyzer',
+        'jobs':'Jobs','skill_gap':'Skill Gap Report','exams':'Exams',
+        'learning':'Learning Resources','profile':'Profile',
+        'career_insights':'Career Insights','achievements':'Achievements',
+        'results':'Results','notifications':'Notifications','settings':'Settings',
+    }
+    page_label = page_titles.get(page, 'Dashboard')
+    left, right = st.columns([6, 1])
+    with left:
+        st.markdown(f"""
+        <div style="display:flex;align-items:center;gap:14px;padding:10px 0 6px;">
+            <div style="font-size:1.5rem;color:#e2e8f0;padding:4px 8px;border-radius:8px;
+                        background:rgba(255,255,255,0.05);border:1px solid #2d2b55;cursor:pointer;">&#9776;</div>
+            <div style="font-size:1.15rem;font-weight:700;color:#e2e8f0;">{page_label}</div>
+        </div>""", unsafe_allow_html=True)
+    with right:
+        st.markdown(f"""
+        <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:10px 0 6px;">
+            <div style="font-size:1.2rem;width:36px;height:36px;border-radius:50%;
+                        background:rgba(255,255,255,0.05);border:1px solid #2d2b55;
+                        display:flex;align-items:center;justify-content:center;cursor:pointer;">🔔</div>
+            <div style="width:36px;height:36px;border-radius:50%;
+                        background:linear-gradient(135deg,#7c3aed,#2563eb);
+                        color:#fff;font-weight:800;font-size:1rem;border:2px solid #7c3aed;
+                        display:flex;align-items:center;justify-content:center;cursor:pointer;">{initial}</div>
+        </div>""", unsafe_allow_html=True)
+    st.markdown('<hr style="border:none;border-top:1px solid #2d2b55;margin:0 0 16px;">', unsafe_allow_html=True)
+        
 def main():
     if not check_auth():
         show_login_page()
         return
     show_sidebar()
+    show_topbar() 
     page = st.session_state.get('current_page', 'dashboard')
     PAGE_MAP = {
         'dashboard':       page_dashboard,
