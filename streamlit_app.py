@@ -263,91 +263,57 @@ def show_login_page():
             <div class="feature-item"><span>✅</span><span>Placement preparation exams</span></div>
             <div class="feature-item"><span>✅</span><span>Personalized learning resources</span></div>
         </div>""", unsafe_allow_html=True)
-      def show_sidebar():
-    import os
-    import streamlit as st
 
-    # Initialize current page if it doesn't exist
-    if "current_page" not in st.session_state:
-        st.session_state.current_page = "dashboard"
-
+# ─────────────────────────────────────────────
+#  SIDEBAR
+# ─────────────────────────────────────────────
+def show_sidebar():
     user = get_current_user() or {}
-
     with st.sidebar:
-
-        # ---------------- Logo ----------------
-        img_path = os.path.join(os.path.dirname(__file__), "assets", "student.png")
-
-        if os.path.exists(img_path):
-            col1, col2, col3 = st.columns([1, 2, 1])
-            with col2:
-                st.image(img_path, use_container_width=True)
-
         st.markdown("""
         <div class="sidebar-logo">
-            <h2 style="margin:0;font-size:1.4rem;font-weight:800;color:white;">
-                SmartHire
-            </h2>
-            <p style="margin:0;font-size:0.8rem;color:#cbd5e1;">
-                Career Guidance Portal
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+            <div style="font-size:2.2rem;margin-bottom:4px;">🎓</div>
+            <h2 style="margin:0;font-size:1.4rem;font-weight:800;color:#fff;">SmartHire</h2>
+            <p style="margin:0;font-size:0.75rem;color:#94a3b8;">Career Guidance Portal</p>
+        </div>""", unsafe_allow_html=True)
 
-        # ---------------- User ----------------
+        # User card
         st.markdown(f"""
         <div class="sidebar-user">
             <div class="sidebar-user-avatar">👨‍🎓</div>
             <div>
-                <div class="sidebar-user-name">
-                    {user.get("name", "User")}
-                </div>
-                <div class="sidebar-user-email">
-                    {user.get("email", "")}
-                </div>
+                <div class="sidebar-user-name">{user.get('name','User')}</div>
+                <div class="sidebar-user-email">{user.get('email','')}</div>
             </div>
-        </div>
-        """, unsafe_allow_html=True)
+        </div>""", unsafe_allow_html=True)
 
-        st.markdown("---")
-
-        # ---------------- Navigation ----------------
         nav_items = [
-            ("🏠", "Dashboard", "dashboard"),
-            ("📄", "Resume Analyzer", "resume_upload"),
-            ("💼", "Jobs", "jobs"),
-            ("📚", "Learning Resources", "learning"),
-            ("📊", "Skill Gap Report", "skill_gap"),
-            ("💡", "Career Insights", "career_insights"),
-            ("🏆", "Achievements", "achievements"),
-            ("📝", "Exams", "exams"),
-            ("📋", "Results", "results"),
-            ("🔔", "Notifications", "notifications"),
-            ("👤", "Profile", "profile"),
-            ("⚙️", "Settings", "settings"),
+            ("🏠", "Dashboard",         "dashboard"),
+            ("📄", "Resume Analyzer",   "resume_upload"),
+            ("💼", "Jobs",              "jobs"),
+            ("📚", "Learning Resources","learning"),
+            ("📊", "Skill Gap Report",  "skill_gap"),
+            ("💡", "Career Insights",   "career_insights"),
+            ("🏆", "Achievements",      "achievements"),
+            ("📝", "Exams",             "exams"),
+            ("📋", "Results",           "results"),
+            ("🔔", "Notifications",     "notifications"),
+            ("👤", "Profile",           "profile"),
+            ("⚙️", "Settings",          "settings"),
         ]
-
-        for icon, label, page in nav_items:
-
-            active = st.session_state.current_page == page
-
-            if st.button(
-                f"{icon}  {label}",
-                key=f"nav_{page}",
-                use_container_width=True,
-                type="primary" if active else "secondary",
-            ):
-                st.session_state.current_page = page
+        for icon, label, page_id in nav_items:
+            is_active = st.session_state.current_page == page_id
+            btn_style = "sidebar-nav-active" if is_active else ""
+            st.markdown(f'<div class="sidebar-nav-item {btn_style}">', unsafe_allow_html=True)
+            if st.button(f"{icon}  {label}", key=f"nav_{page_id}", use_container_width=True):
+                st.session_state.current_page = page_id
                 st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
 
-        st.markdown("---")
-
-        # ---------------- Logout ----------------
-        if st.button("🚪 Logout", use_container_width=True):
-            logout_user()        # Replace with your logout function
-            st.session_state.current_page = "login"
+        st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
+        if st.button("🚪  Logout", key="nav_logout", use_container_width=True):
+            logout()
             st.rerun()
-
 
 # ─────────────────────────────────────────────
 #  PAGES
@@ -360,38 +326,15 @@ def page_dashboard():
     domain = user.get('domain', 'Machine Learning')
 
     # ── Welcome Banner ──
-    st.markdown("""
-    <style>
-    .banner-wrap {
-        background: linear-gradient(135deg,#1e1b4b 0%,#312e81 50%,#1e3a5f 100%);
-        border-radius: 20px; padding: 28px 30px 20px; margin-bottom: 16px;
-        display: flex; align-items: center; justify-content: space-between;
-    }
-    .banner-wrap h1 { font-size:1.9rem; font-weight:800; color:#fff; margin:0 0 6px; }
-    .banner-wrap p  { margin:4px 0; }
-    </style>""", unsafe_allow_html=True)
-
-    ban_col, img_col = st.columns([3, 1])
-    with ban_col:
-        st.markdown(f"""
-        <div style="background:linear-gradient(135deg,#1e1b4b 0%,#312e81 55%,#1e3a5f 100%);
-                    border-radius:20px;padding:28px 30px;height:100%;">
-            <h1 style="font-size:1.85rem;font-weight:800;color:#fff;margin:0 0 6px;">
-                Welcome to SmartHire 👋
-            </h1>
-            <p style="color:#c4b5fd;font-size:0.95rem;margin:0 0 6px;">
-                Your AI Powered Career Guidance Platform
-            </p>
-            <p style="color:#94a3b8;font-size:0.85rem;margin:0;">
-                Hello, <b style="color:#fff;">{name}</b> — track your progress, upload your resume, and prepare for placements.
-            </p>
-        </div>""", unsafe_allow_html=True)
-    with img_col:
-        img_path = os.path.join(os.path.dirname(__file__), 'assets', 'student.png')
-        if os.path.exists(img_path):
-            st.markdown('<div style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:20px;padding:10px;text-align:center;">', unsafe_allow_html=True)
-            st.image(img_path, use_column_width=True)
-            st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown(f"""
+    <div class="welcome-banner" style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+            <h1 style="font-size:2rem;font-weight:800;color:#fff;margin:0 0 6px;">Welcome to SmartHire 👋</h1>
+            <p style="color:#c4b5fd;font-size:0.97rem;margin:0;">Your AI Powered Career Guidance Platform</p>
+            <p style="color:#94a3b8;font-size:0.85rem;margin:6px 0 0;">Hello, <b style="color:#fff;">{name}</b> — track your progress, upload your resume, and prepare for placements.</p>
+        </div>
+        <div style="font-size:5rem;opacity:0.85;line-height:1;">🎓</div>
+    </div>""", unsafe_allow_html=True)
 
     # ── Upload Resume (on dashboard) ──
     st.markdown('<div class="dash-card" style="margin-bottom:16px;"><div style="font-size:0.82rem;color:#94a3b8;font-weight:600;letter-spacing:0.05em;margin-bottom:8px;">UPLOAD RESUME</div>', unsafe_allow_html=True)
@@ -423,27 +366,23 @@ def page_dashboard():
 
     c1, c2, c3, c4, c5 = st.columns(5)
     cards = [
-        (c1, "📄", "Resume Score", f"{rs}%",  "#2563eb", "#0d1b3e", rs),
-        (c2, "🎯", "Job Match",    f"{jm}%",  "#10b981", "#0d2e24", jm),
-        (c3, "📋", "Tests Taken",  str(tt),   "#f59e0b", "#2e1f0d", min(tt*10,100)),
-        (c4, "💼", "Assignments",  str(asg),  "#7c3aed", "#1a0d3e", min(asg*8,100)),
-        (c5, "⭐", "Highest Score",f"{hs}%",  "#ec4899", "#2e0d1f", hs),
+        (c1, "📄", "Resume Score", f"{rs}%",  "#2563eb", rs),
+        (c2, "🎯", "Job Match",    f"{jm}%",  "#10b981", jm),
+        (c3, "📋", "Tests Taken",  str(tt),   "#f59e0b", min(tt*10,100)),
+        (c4, "💼", "Assignments",  str(asg),  "#7c3aed", min(asg*8,100)),
+        (c5, "⭐", "Highest Score",f"{hs}%",  "#ec4899", hs),
     ]
-    for col, icon, label, val, color, bg, pct in cards:
+    for col, icon, label, val, color, pct in cards:
         with col:
             st.markdown(f"""
-            <div style="background:{bg};border:1px solid {color}33;border-radius:14px;
-                        padding:18px 14px;margin-bottom:14px;">
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-                    <span style="font-size:1.3rem;">{icon}</span>
-                    <span style="font-size:0.75rem;font-weight:700;color:{color};
-                                 text-transform:uppercase;letter-spacing:0.04em;">{label}</span>
+            <div class="dash-metric-card">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                    <span style="font-size:1.4rem;">{icon}</span>
+                    <span style="font-size:0.78rem;font-weight:600;color:{color};">{label}</span>
                 </div>
-                <div style="font-size:2rem;font-weight:900;color:{color};
-                            margin-bottom:12px;line-height:1;">{val}</div>
+                <div style="font-size:1.9rem;font-weight:800;color:{color};margin-bottom:10px;">{val}</div>
                 <div style="background:#1e293b;border-radius:999px;height:5px;overflow:hidden;">
-                    <div style="width:{pct}%;height:100%;background:{color};
-                                border-radius:999px;"></div>
+                    <div style="width:{pct}%;height:100%;background:{color};border-radius:999px;"></div>
                 </div>
             </div>""", unsafe_allow_html=True)
 
@@ -1205,6 +1144,7 @@ def page_about():
             <div style="font-size:0.8rem;color:#64748b;">Machine Learning Industrial Project</div>
             <div style="font-size:0.78rem;color:#64748b;margin-top:6px;">© 2025 SmartHire. All rights reserved.</div>
         </div>""", unsafe_allow_html=True)
+
 
 # ─────────────────────────────────────────────
 #  MAIN ROUTER
