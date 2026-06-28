@@ -1335,6 +1335,7 @@ def page_notifications():
                 </div>
             </div>
         </div>""", unsafe_allow_html=True)
+
 def page_settings():
     page_header("⚙️ Settings", "Manage your account and preferences")
     user = get_current_user() or {}
@@ -1348,5 +1349,7 @@ def page_settings():
         logout()
         st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
+
+
 if __name__ == '__main__':
     main()
