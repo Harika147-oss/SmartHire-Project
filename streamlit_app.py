@@ -263,62 +263,91 @@ def show_login_page():
             <div class="feature-item"><span>✅</span><span>Placement preparation exams</span></div>
             <div class="feature-item"><span>✅</span><span>Personalized learning resources</span></div>
         </div>""", unsafe_allow_html=True)
+      def show_sidebar():
+    import os
+    import streamlit as st
 
-# ─────────────────────────────────────────────
-#  SIDEBAR
-# ─────────────────────────────────────────────
-def show_sidebar():
+    # Initialize current page if it doesn't exist
+    if "current_page" not in st.session_state:
+        st.session_state.current_page = "dashboard"
+
     user = get_current_user() or {}
+
     with st.sidebar:
-        # Logo image
-        img_path = os.path.join(os.path.dirname(__file__), 'assets', 'student.png')
+
+        # ---------------- Logo ----------------
+        img_path = os.path.join(os.path.dirname(__file__), "assets", "student.png")
+
         if os.path.exists(img_path):
-            col_l, col_m, col_r = st.columns([1, 2, 1])
-            with col_m:
-                st.image(img_path, use_column_width=True)
+            col1, col2, col3 = st.columns([1, 2, 1])
+            with col2:
+                st.image(img_path, use_container_width=True)
+
         st.markdown("""
         <div class="sidebar-logo">
-            <h2 style="margin:0;font-size:1.4rem;font-weight:800;color:#fff;">SmartHire</h2>
-            <p style="margin:0;font-size:0.75rem;color:#94a3b8;">Career Guidance Portal</p>
-        </div>""", unsafe_allow_html=True)
+            <h2 style="margin:0;font-size:1.4rem;font-weight:800;color:white;">
+                SmartHire
+            </h2>
+            <p style="margin:0;font-size:0.8rem;color:#cbd5e1;">
+                Career Guidance Portal
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
 
-        # User card
+        # ---------------- User ----------------
         st.markdown(f"""
         <div class="sidebar-user">
             <div class="sidebar-user-avatar">👨‍🎓</div>
             <div>
-                <div class="sidebar-user-name">{user.get('name','User')}</div>
-                <div class="sidebar-user-email">{user.get('email','')}</div>
+                <div class="sidebar-user-name">
+                    {user.get("name", "User")}
+                </div>
+                <div class="sidebar-user-email">
+                    {user.get("email", "")}
+                </div>
             </div>
-        </div>""", unsafe_allow_html=True)
+        </div>
+        """, unsafe_allow_html=True)
 
+        st.markdown("---")
+
+        # ---------------- Navigation ----------------
         nav_items = [
-            ("🏠", "Dashboard",         "dashboard"),
-            ("📄", "Resume Analyzer",   "resume_upload"),
-            ("💼", "Jobs",              "jobs"),
-            ("📚", "Learning Resources","learning"),
-            ("📊", "Skill Gap Report",  "skill_gap"),
-            ("💡", "Career Insights",   "career_insights"),
-            ("🏆", "Achievements",      "achievements"),
-            ("📝", "Exams",             "exams"),
-            ("📋", "Results",           "results"),
-            ("🔔", "Notifications",     "notifications"),
-            ("👤", "Profile",           "profile"),
-            ("⚙️", "Settings",          "settings"),
+            ("🏠", "Dashboard", "dashboard"),
+            ("📄", "Resume Analyzer", "resume_upload"),
+            ("💼", "Jobs", "jobs"),
+            ("📚", "Learning Resources", "learning"),
+            ("📊", "Skill Gap Report", "skill_gap"),
+            ("💡", "Career Insights", "career_insights"),
+            ("🏆", "Achievements", "achievements"),
+            ("📝", "Exams", "exams"),
+            ("📋", "Results", "results"),
+            ("🔔", "Notifications", "notifications"),
+            ("👤", "Profile", "profile"),
+            ("⚙️", "Settings", "settings"),
         ]
-        for icon, label, page_id in nav_items:
-            is_active = st.session_state.current_page == page_id
-            btn_style = "sidebar-nav-active" if is_active else ""
-            st.markdown(f'<div class="sidebar-nav-item {btn_style}">', unsafe_allow_html=True)
-            if st.button(f"{icon}  {label}", key=f"nav_{page_id}", use_container_width=True):
-                st.session_state.current_page = page_id
-                st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
 
-        st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
-        if st.button("🚪  Logout", key="nav_logout", use_container_width=True):
-            logout()
+        for icon, label, page in nav_items:
+
+            active = st.session_state.current_page == page
+
+            if st.button(
+                f"{icon}  {label}",
+                key=f"nav_{page}",
+                use_container_width=True,
+                type="primary" if active else "secondary",
+            ):
+                st.session_state.current_page = page
+                st.rerun()
+
+        st.markdown("---")
+
+        # ---------------- Logout ----------------
+        if st.button("🚪 Logout", use_container_width=True):
+            logout_user()        # Replace with your logout function
+            st.session_state.current_page = "login"
             st.rerun()
+
 
 # ─────────────────────────────────────────────
 #  PAGES
