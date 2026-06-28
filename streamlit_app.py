@@ -1177,42 +1177,6 @@ def page_about():
             <div style="font-size:0.78rem;color:#64748b;margin-top:6px;">© 2025 SmartHire. All rights reserved.</div>
         </div>""", unsafe_allow_html=True)
 
-
-# ─────────────────────────────────────────────
-#  TOP NAVBAR
-# ─────────────────────────────────────────────
-def show_topbar():
-    user = get_current_user() or {}
-    name  = user.get('name', 'User')
-    initial = name[0].upper() if name else 'U'
-    page  = st.session_state.get('current_page', 'dashboard')
-    page_titles = {
-        'dashboard':'Dashboard','resume_upload':'Resume Analyzer',
-        'resume_analysis':'Resume Analysis','jobs':'Jobs',
-        'skill_gap':'Skill Gap Report','exams':'Exams',
-        'learning':'Learning Resources','profile':'Profile',
-        'about':'About','career_insights':'Career Insights',
-        'achievements':'Achievements','results':'Results',
-        'notifications':'Notifications','settings':'Settings',
-    }
-    page_label = page_titles.get(page, 'Dashboard')
-
-    left, right = st.columns([6, 1])
-    with left:
-        st.markdown(f"""
-        <div class="topbar-left">
-            <div class="topbar-hamburger">&#9776;</div>
-            <div class="topbar-title">{page_label}</div>
-        </div>""", unsafe_allow_html=True)
-    with right:
-        st.markdown(f"""
-        <div class="topbar-right">
-            <div class="topbar-icon" title="Notifications">🔔</div>
-            <div class="topbar-avatar" title="{name}">{initial}</div>
-        </div>""", unsafe_allow_html=True)
-    st.markdown('<div class="topbar-divider"></div>', unsafe_allow_html=True)
-
-
 # ─────────────────────────────────────────────
 #  MAIN ROUTER
 # ─────────────────────────────────────────────
@@ -1222,7 +1186,6 @@ def main():
         return
 
     show_sidebar()
-    show_topbar()
 
     # Route to page
     page = st.session_state.get('current_page', 'dashboard')
